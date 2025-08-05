@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "76043864423",
+    "project_id": "animal-resq-ddb4a",
+    "storage_bucket": "animal-resq-ddb4a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:76043864423:android:2aa99c6b799053065c47c2",
+        "android_client_info": {
+          "package_name": "com.example.binary_brains"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCn635uvVJMOy9aJesBol6zYM_hfJiAjok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
