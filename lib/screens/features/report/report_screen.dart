@@ -9,6 +9,11 @@ import '../../../widgets/animated_card.dart';
 import '../../../utils/app_colors.dart';
 import '../../../models/user_model.dart';
 import 'widgets/location_picker_card.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
+import 'dart:convert';
 
 class ReportScreen extends StatefulWidget {
   @override
@@ -18,7 +23,7 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
-  
+
   String _selectedAnimalType = 'Dog';
   String _selectedCondition = 'Injured';
   List<File> _images = [];
@@ -29,12 +34,12 @@ class _ReportScreenState extends State<ReportScreen> {
 
   final List<String> _animalTypes = ['Dog', 'Cat', 'Bird', 'Rabbit', 'Other'];
   final List<String> _conditions = [
-    'Injured', 
-    'Severely Injured', 
-    'Sick', 
+    'Injured',
+    'Severely Injured',
+    'Sick',
     'Healthy but Stray',
     'Abandoned',
-    'Lost'
+    'Lost',
   ];
 
   @override
@@ -46,7 +51,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _pickImage() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.currentUser!;
-    
+
     if (!user.canUploadMultipleImages && _images.isNotEmpty) {
       _showSnackBar(
         'Normal users can only upload 1 image. Upgrade to Premium for more!',
@@ -62,7 +67,7 @@ class _ReportScreenState extends State<ReportScreen> {
       maxHeight: 1024,
       imageQuality: 85,
     );
-    
+
     if (pickedFile != null) {
       setState(() {
         _images.add(File(pickedFile.path));
@@ -86,12 +91,12 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Future<void> _submitReport() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     if (_images.isEmpty) {
       _showSnackBar('Please add at least one image', AppColors.error);
       return;
     }
-    
+
     if (_latitude == null || _longitude == null) {
       _showSnackBar('Please select location on map', AppColors.error);
       return;
@@ -100,20 +105,63 @@ class _ReportScreenState extends State<ReportScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      final uri = Uri.parse('https://pawbuddy.cse.pstu.ac.bd/api/reports');
+      var request = http.MultipartRequest('POST', uri);
 
+      // Add form fields with corrected names
+      request.fields['title'] = "testing";
+      request.fields['animalType'] = _selectedAnimalType;
+
+      // rename condition → animalCondition
+      request.fields['animalCondition'] = _selectedCondition;
+
+      request.fields['description'] = _descriptionController.text;
+
+      // location as JSON string (object with lat, long)
+      request.fields['location.latitude'] = _latitude.toString();
+      request.fields['location.longitude'] = _longitude.toString();
+
+      // Add reportedBy user id (your schema uses this key)
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      authProvider.addPoints(50);
+      final user = authProvider.currentUser!;
+      request.fields['userId'] = user.id;
+      //request.fields['reportedBy'] = user.id;
 
-      _showSnackBar(
-        'Report submitted successfully! +50 points earned',
-        AppColors.success,
-      );
+      // Optional: add contact info if available
 
-      Navigator.pop(context);
+      // Add images as 'photos[]' (matching schema's photos array)
+      for (var image in _images) {
+        final mimeType =
+            lookupMimeType(image.path) ?? 'application/octet-stream';
+        final mediaTypeSplit = mimeType.split('/');
+        final multipartFile = await http.MultipartFile.fromPath(
+          'images[]',
+          image.path,
+          contentType: MediaType(mediaTypeSplit[0], mediaTypeSplit[1]),
+          filename: path.basename(image.path),
+        );
+        request.files.add(multipartFile);
+      }
+
+      // Send request
+      final response = await request.send();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        authProvider.addPoints(50);
+        _showSnackBar(
+          'Report submitted successfully! +50 points earned',
+          AppColors.success,
+        );
+        Navigator.pop(context);
+      } else {
+        final responseBody = await response.stream.bytesToString();
+        _showSnackBar(
+          'Failed: ${response.statusCode} - $responseBody',
+          AppColors.error,
+        );
+      }
     } catch (e) {
-      _showSnackBar('Failed to submit report. Please try again.', AppColors.error);
+      _showSnackBar('Error: ${e.toString()}', AppColors.error);
     } finally {
       setState(() => _isSubmitting = false);
     }
@@ -150,7 +198,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   builder: (context, authProvider, child) {
                     final user = authProvider.currentUser!;
                     if (!user.canEarnPoints) return const SizedBox.shrink();
-                    
+
                     return AnimatedCard(
                       child: SimpleCard(
                         child: Row(
@@ -159,7 +207,10 @@ class _ReportScreenState extends State<ReportScreen> {
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
-                                  colors: [AppColors.success, Colors.green.shade400],
+                                  colors: [
+                                    AppColors.success,
+                                    Colors.green.shade400,
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -185,9 +236,9 @@ class _ReportScreenState extends State<ReportScreen> {
                     );
                   },
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Animal Type Selection
                 _buildSectionTitle('Animal Type'),
                 const SizedBox(height: 12),
@@ -196,19 +247,25 @@ class _ReportScreenState extends State<ReportScreen> {
                     value: _selectedAnimalType,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      prefixIcon: Icon(Icons.pets_rounded, color: AppColors.primary),
+                      prefixIcon: Icon(
+                        Icons.pets_rounded,
+                        color: AppColors.primary,
+                      ),
                     ),
                     dropdownColor: Theme.of(context).cardColor,
-                    items: _animalTypes.map((type) => DropdownMenuItem(
-                      value: type,
-                      child: Text(type),
-                    )).toList(),
-                    onChanged: (value) => setState(() => _selectedAnimalType = value!),
+                    items: _animalTypes
+                        .map(
+                          (type) =>
+                              DropdownMenuItem(value: type, child: Text(type)),
+                        )
+                        .toList(),
+                    onChanged: (value) =>
+                        setState(() => _selectedAnimalType = value!),
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Condition Selection
                 _buildSectionTitle('Animal Condition'),
                 const SizedBox(height: 12),
@@ -217,28 +274,36 @@ class _ReportScreenState extends State<ReportScreen> {
                     value: _selectedCondition,
                     decoration: const InputDecoration(
                       border: InputBorder.none,
-                      prefixIcon: Icon(Icons.health_and_safety_rounded, color: AppColors.primary),
+                      prefixIcon: Icon(
+                        Icons.health_and_safety_rounded,
+                        color: AppColors.primary,
+                      ),
                     ),
                     dropdownColor: Theme.of(context).cardColor,
-                    items: _conditions.map((condition) => DropdownMenuItem(
-                      value: condition,
-                      child: Text(condition),
-                    )).toList(),
-                    onChanged: (value) => setState(() => _selectedCondition = value!),
+                    items: _conditions
+                        .map(
+                          (condition) => DropdownMenuItem(
+                            value: condition,
+                            child: Text(condition),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) =>
+                        setState(() => _selectedCondition = value!),
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Location Selection with Map
                 LocationPickerCard(
                   onLocationSelected: _onLocationSelected,
                   initialLat: _latitude,
                   initialLng: _longitude,
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Description Field
                 _buildSectionTitle('Description'),
                 const SizedBox(height: 12),
@@ -247,11 +312,15 @@ class _ReportScreenState extends State<ReportScreen> {
                     controller: _descriptionController,
                     maxLines: 4,
                     decoration: const InputDecoration(
-                      hintText: 'Provide additional details about the animal...',
+                      hintText:
+                          'Provide additional details about the animal...',
                       border: InputBorder.none,
                       prefixIcon: Padding(
                         padding: EdgeInsets.only(bottom: 60),
-                        child: Icon(Icons.description_rounded, color: AppColors.primary),
+                        child: Icon(
+                          Icons.description_rounded,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ),
                     validator: (value) {
@@ -262,13 +331,13 @@ class _ReportScreenState extends State<ReportScreen> {
                     },
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Image Section
                 _buildSectionTitle('Photos'),
                 const SizedBox(height: 12),
-                
+
                 // Add Image Button
                 AnimatedCard(
                   onTap: _pickImage,
@@ -279,7 +348,10 @@ class _ReportScreenState extends State<ReportScreen> {
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [AppColors.primary, AppColors.primaryLight],
+                              colors: [
+                                AppColors.primary,
+                                AppColors.primaryLight,
+                              ],
                             ),
                             shape: BoxShape.circle,
                           ),
@@ -318,9 +390,9 @@ class _ReportScreenState extends State<ReportScreen> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Image Preview
                 if (_images.isNotEmpty) ...[
                   _buildSectionTitle('Selected Images (${_images.length})'),
@@ -373,9 +445,9 @@ class _ReportScreenState extends State<ReportScreen> {
                     ),
                   ),
                 ],
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Submit Button
                 AnimatedCard(
                   child: Container(
@@ -401,7 +473,9 @@ class _ReportScreenState extends State<ReportScreen> {
                               width: 24,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const Text(
@@ -415,7 +489,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
               ],
             ),

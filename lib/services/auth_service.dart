@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 
 class AuthService {
-  static const String baseUrl = 'https://pawbuddy.onrender.com/api/auth';
+  static const String baseUrl = 'https://pawbuddy.cse.pstu.ac.bd/api/auth';
 
   Future<UserModel?> login(String email, String password, {bool isRescueTeam = false}) async {
     try {
