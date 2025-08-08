@@ -25,7 +25,7 @@ class ReportCard extends StatelessWidget {
           AnimatedCard(
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => ReportScreen()),
+              MaterialPageRoute(builder: (_) => ReportScreen("report")),
             ),
             child: SimpleCard(
               child: Column(

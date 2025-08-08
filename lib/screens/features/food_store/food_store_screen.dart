@@ -3,6 +3,7 @@ import '../../../widgets/gradient_background.dart';
 import '../../../widgets/glass_container.dart';
 import '../../../widgets/animated_card.dart';
 import '../../../utils/app_colors.dart';
+import '../../checkout/checkout.dart';
 
 class FoodStoreScreen extends StatefulWidget {
   @override
@@ -13,12 +14,18 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   final List<Map<String, dynamic>> _cart = [];
   String _selectedCategory = 'All';
-  
-  final List<String> _categories = ['All', 'Dog Food', 'Cat Food', 'Bird Food', 'Accessories'];
-  
+
+  final List<String> _categories = [
+    'All',
+    'Dog Food',
+    'Cat Food',
+    'Bird Food',
+    'Accessories',
+  ];
+
   final List<Map<String, dynamic>> _products = [
     {
       'id': '1',
@@ -31,7 +38,8 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
       'brand': 'PetNutrition',
       'rating': 4.8,
       'inStock': true,
-      'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSv0Yf0d4Ch64D4BuwqUmy10RWuLBgtzTs0Yg&s',
+      'image':
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSv0Yf0d4Ch64D4BuwqUmy10RWuLBgtzTs0Yg&s',
       'features': ['High Protein', 'No Artificial Colors', 'Digestive Health'],
     },
     {
@@ -45,7 +53,8 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
       'brand': 'FelineChoice',
       'rating': 4.6,
       'inStock': true,
-      'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ncv6bN5cFcuym0fW8Z0-zDmnaCcM3IoHrg&s',
+      'image':
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ7Ncv6bN5cFcuym0fW8Z0-zDmnaCcM3IoHrg&s',
       'features': ['Omega-3', 'Hairball Control', 'Indoor Formula'],
     },
     {
@@ -59,7 +68,8 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
       'brand': 'BirdLife',
       'rating': 4.4,
       'inStock': true,
-      'image': 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGV0JTIwZm9vZHxlbnwwfHwwfHx8MA%3D%3D',
+      'image':
+          'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGV0JTIwZm9vZHxlbnwwfHwwfHx8MA%3D%3D',
       'features': ['Vitamin Enriched', 'Natural Seeds', 'Energy Boost'],
     },
     {
@@ -73,7 +83,8 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
       'brand': 'AquaLife',
       'rating': 4.3,
       'inStock': false,
-      'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx1lLu6zKgT6jUrhPhvNAfTVC4MjUtCjp8ig&s',
+      'image':
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx1lLu6zKgT6jUrhPhvNAfTVC4MjUtCjp8ig&s',
       'features': ['Color Enhancement', 'Easy Digestion', 'Floating Formula'],
     },
     {
@@ -87,7 +98,8 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
       'brand': 'BunnyBest',
       'rating': 4.7,
       'inStock': true,
-      'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrRudrYTdy4L8FJyvCqNNspuPOK2UiSD-USw&s',
+      'image':
+          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSrRudrYTdy4L8FJyvCqNNspuPOK2UiSD-USw&s',
       'features': ['High Fiber', 'Timothy Hay', 'Dental Health'],
     },
     {
@@ -101,18 +113,24 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
       'brand': 'PetEssentials',
       'rating': 4.5,
       'inStock': true,
-      'image': 'https://www.shutterstock.com/image-photo/pet-supplies-on-white-background-260nw-1364257328.jpg',
+      'image':
+          'https://www.shutterstock.com/image-photo/pet-supplies-on-white-background-260nw-1364257328.jpg',
       'features': ['Stainless Steel', 'Non-Slip Base', 'Easy Clean'],
     },
   ];
 
   List<Map<String, dynamic>> get _filteredProducts {
     if (_selectedCategory == 'All') return _products;
-    return _products.where((product) => product['category'] == _selectedCategory).toList();
+    return _products
+        .where((product) => product['category'] == _selectedCategory)
+        .toList();
   }
 
   double get _totalPrice {
-    return _cart.fold(0.0, (sum, item) => sum + (item['price'] * item['quantity']));
+    return _cart.fold(
+      0.0,
+      (sum, item) => sum + (item['price'] * item['quantity']),
+    );
   }
 
   @override
@@ -181,7 +199,7 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
           opacity: _fadeAnimation,
           child: Column(
             children: [
-              const SizedBox(height: 10,),
+              const SizedBox(height: 10),
               // Category Filter
               Container(
                 height: 50,
@@ -192,29 +210,42 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                   itemBuilder: (context, index) {
                     final category = _categories[index];
                     final isSelected = _selectedCategory == category;
-                    
+
                     return Container(
                       margin: const EdgeInsets.only(right: 12),
                       child: AnimatedCard(
-                        onTap: () => setState(() => _selectedCategory = category),
+                        onTap: () =>
+                            setState(() => _selectedCategory = category),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
                           decoration: BoxDecoration(
                             gradient: isSelected
                                 ? LinearGradient(
-                                    colors: [AppColors.primary, AppColors.primaryLight],
+                                    colors: [
+                                      AppColors.primary,
+                                      AppColors.primaryLight,
+                                    ],
                                   )
                                 : null,
-                            color: isSelected ? null : Colors.white.withOpacity(0.2),
+                            color: isSelected
+                                ? null
+                                : Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(25),
                             border: Border.all(
-                              color: isSelected ? Colors.transparent : AppColors.glassBorder,
+                              color: isSelected
+                                  ? Colors.transparent
+                                  : AppColors.glassBorder,
                             ),
                           ),
                           child: Text(
                             category,
                             style: TextStyle(
-                              color: isSelected ? Colors.white : AppColors.textPrimary,
+                              color: isSelected
+                                  ? Colors.white
+                                  : AppColors.textPrimary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -224,9 +255,9 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Products Grid
               Expanded(
                 child: GridView.builder(
@@ -305,7 +336,10 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                       top: 8,
                       right: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.warning.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(8),
@@ -390,7 +424,9 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                     child: ElevatedButton(
                       onPressed: isInStock ? () => _addToCart(product) : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isInStock ? AppColors.primary : AppColors.textLight,
+                        backgroundColor: isInStock
+                            ? AppColors.primary
+                            : AppColors.textLight,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
@@ -455,20 +491,27 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
               ),
             ),
             ElevatedButton(
-              onPressed: _proceedToCheckout,
+              onPressed: () {
+                proceedToCheckout(
+                  context,
+                  totalPrice: _totalPrice,
+                  clearCart: () => setState(() => _cart.clear()),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.success,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               child: const Text(
                 'Checkout',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -507,9 +550,9 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               Text(
                 product['name'],
                 style: const TextStyle(
@@ -517,16 +560,16 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               Text(
                 product['description'],
                 style: const TextStyle(fontSize: 14),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               Row(
                 children: [
                   Text(
@@ -549,49 +592,53 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                     ),
                 ],
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               const Text(
                 'Features:',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: (product['features'] as List<String>).map((feature) => 
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      feature,
-                      style: const TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                children: (product['features'] as List<String>)
+                    .map(
+                      (feature) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          feature,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ).toList(),
+                    )
+                    .toList(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: product['inStock'] ? () {
-                        Navigator.pop(context);
-                        _addToCart(product);
-                      } : null,
+                      onPressed: product['inStock']
+                          ? () {
+                              Navigator.pop(context);
+                              _addToCart(product);
+                            }
+                          : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -616,21 +663,20 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
   }
 
   void _addToCart(Map<String, dynamic> product) {
-    final existingIndex = _cart.indexWhere((item) => item['id'] == product['id']);
-    
+    final existingIndex = _cart.indexWhere(
+      (item) => item['id'] == product['id'],
+    );
+
     if (existingIndex >= 0) {
       setState(() {
         _cart[existingIndex]['quantity']++;
       });
     } else {
       setState(() {
-        _cart.add({
-          ...product,
-          'quantity': 1,
-        });
+        _cart.add({...product, 'quantity': 1});
       });
     }
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${product['name']} added to cart'),
@@ -658,10 +704,7 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                 children: [
                   const Text(
                     'Shopping Cart',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const Spacer(),
                   TextButton(
@@ -684,13 +727,12 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                         borderRadius: BorderRadius.circular(8),
                         color: AppColors.primary.withOpacity(0.1),
                       ),
-                      child: Icon(
-                        Icons.pets_rounded,
-                        color: AppColors.primary,
-                      ),
+                      child: Icon(Icons.pets_rounded, color: AppColors.primary),
                     ),
                     title: Text(item['name']),
-                    subtitle: Text('৳${item['price'].toStringAsFixed(0)} x ${item['quantity']}'),
+                    subtitle: Text(
+                      '৳${item['price'].toStringAsFixed(0)} x ${item['quantity']}',
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -748,7 +790,13 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: _proceedToCheckout,
+                      onPressed: () {
+                        proceedToCheckout(
+                          context,
+                          totalPrice: _totalPrice,
+                          clearCart: () => setState(() => _cart.clear()),
+                        );
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.success,
                         foregroundColor: Colors.white,
@@ -764,136 +812,5 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
         ),
       ),
     );
-  }
-
-  void _proceedToCheckout() {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: GlassContainer(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [AppColors.success, Colors.green.shade400],
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.payment_rounded,
-                  size: 40,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Payment Options',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Total Amount: ৳${_totalPrice.toStringAsFixed(0)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Column(
-                children: [
-                  _buildPaymentOption('bKash', Icons.phone_android_rounded, AppColors.accent),
-                  const SizedBox(height: 12),
-                  _buildPaymentOption('Nagad', Icons.account_balance_wallet_rounded, AppColors.warning),
-                  const SizedBox(height: 12),
-                  _buildPaymentOption('Cash on Delivery', Icons.local_shipping_rounded, AppColors.primary),
-                ],
-              ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPaymentOption(String title, IconData icon, Color color) {
-    return AnimatedCard(
-      onTap: () => _processPayment(title),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.3)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 16),
-            Text(
-              title,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-            const Spacer(),
-            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: color),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _processPayment(String method) {
-    Navigator.pop(context); // Close payment dialog
-    Navigator.pop(context); // Close cart if open
-    
-    // Simulate payment processing
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: GlassContainer(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator(color: AppColors.primary),
-              const SizedBox(height: 20),
-              Text('Processing payment via $method...'),
-            ],
-          ),
-        ),
-      ),
-    );
-    
-    Future.delayed(const Duration(seconds: 2), () {
-      Navigator.pop(context); // Close processing dialog
-      
-      setState(() {
-        _cart.clear();
-      });
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Order placed successfully! Your items will be delivered soon.'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-    });
   }
 }

@@ -33,7 +33,7 @@ class FeatureGrid extends StatelessWidget {
             'icon': Icons.sell_rounded,
             'color': const Color(0xFFEF8644), // Red
             'isPremium': false,
-            'screen': const ReportScreen(),
+            'screen': const ReportScreen("sell"),
           },
           {
             'title': 'Volunteer',

@@ -14,6 +14,7 @@ import 'widgets/points_card.dart';
 import 'widgets/report_card.dart';
 import 'widgets/rescue_teams_card.dart';
 import '../my_reports/my_reports_screen.dart';
+import '../adoption/adoption_center.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -63,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen>
                 index: _currentIndex,
                 children: [
                   _buildHomeContent(user),
-                  _buildAdoptionContent(),
+                  buildAdoptionContent(),
                   const MyReportsScreen(),
                   _buildSettingsContent(user),
                 ],
@@ -142,45 +143,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildAdoptionContent() {
-    return Center(
-      child: SimpleCard(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                color: AppColors.accent,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.favorite,
-                size: 60,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Adoption Center',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Coming Soon!',
-              style: TextStyle(
-                fontSize: 16,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+ 
 
   Widget _buildSettingsContent(UserModel user) {
     return SingleChildScrollView(

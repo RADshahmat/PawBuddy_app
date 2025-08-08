@@ -16,7 +16,10 @@ import 'package:http_parser/http_parser.dart';
 import 'dart:convert';
 
 class ReportScreen extends StatefulWidget {
-  const ReportScreen({super.key});
+  final String reportType;
+
+  const ReportScreen(this.reportType, {super.key});
+
   @override
   State<ReportScreen> createState() => _ReportScreenState();
 }
@@ -24,6 +27,7 @@ class ReportScreen extends StatefulWidget {
 class _ReportScreenState extends State<ReportScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
+  final _priceController = TextEditingController();
 
   String _selectedAnimalType = 'Dog';
   String _selectedCondition = 'Injured';
@@ -46,6 +50,7 @@ class _ReportScreenState extends State<ReportScreen> {
   @override
   void dispose() {
     _descriptionController.dispose();
+    _priceController.dispose();
     super.dispose();
   }
 
@@ -62,8 +67,29 @@ class _ReportScreenState extends State<ReportScreen> {
     }
 
     final picker = ImagePicker();
+
+    // Let user choose source
+    final source = await showDialog<ImageSource>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Select Image Source'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, ImageSource.camera),
+            child: const Text('Camera'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ImageSource.gallery),
+            child: const Text('Gallery'),
+          ),
+        ],
+      ),
+    );
+
+    if (source == null) return; // user cancelled
+
     final pickedFile = await picker.pickImage(
-      source: ImageSource.camera,
+      source: source,
       maxWidth: 1024,
       maxHeight: 1024,
       imageQuality: 85,
@@ -117,6 +143,8 @@ class _ReportScreenState extends State<ReportScreen> {
       request.fields['animalCondition'] = _selectedCondition;
 
       request.fields['description'] = _descriptionController.text;
+      request.fields['price'] = _priceController.text;
+      request.fields['reportType'] = widget.reportType;
 
       // location as JSON string (object with lat, long)
       request.fields['location.latitude'] = _latitude.toString();
@@ -136,7 +164,7 @@ class _ReportScreenState extends State<ReportScreen> {
             lookupMimeType(image.path) ?? 'application/octet-stream';
         final mediaTypeSplit = mimeType.split('/');
         final multipartFile = await http.MultipartFile.fromPath(
-          'images[]',
+          'images',
           image.path,
           contentType: MediaType(mediaTypeSplit[0], mediaTypeSplit[1]),
           filename: path.basename(image.path),
@@ -183,7 +211,9 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Report Stray Animal'),
+        title: widget.reportType == "report"
+            ? const Text('Report Stray Animal')
+            : const Text('Sell Pet'),
         backgroundColor: Colors.transparent,
       ),
       body: GradientBackground(
@@ -442,6 +472,34 @@ class _ReportScreenState extends State<ReportScreen> {
                             ],
                           ),
                         );
+                      },
+                    ),
+                  ),
+                ],
+
+                if (widget.reportType == "sell") ...[
+                  const SizedBox(height: 20),
+
+                  _buildSectionTitle('Price'),
+                  const SizedBox(height: 12),
+
+                  SimpleCard(
+                    child: TextFormField(
+                      controller: _priceController,
+                      maxLines: 1,
+                      decoration: const InputDecoration(
+                        hintText: 'Add a Price...',
+                        border: InputBorder.none,
+                        prefixIcon: Icon(
+                          Icons.attach_money_rounded,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please add a price';
+                        }
+                        return null;
                       },
                     ),
                   ),
