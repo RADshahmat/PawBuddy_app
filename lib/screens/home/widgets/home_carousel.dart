@@ -4,6 +4,7 @@ import '../../../widgets/glass_container.dart';
 import '../../../utils/app_colors.dart';
 
 class HomeCarousel extends StatefulWidget {
+  const HomeCarousel({super.key});
   @override
   State<HomeCarousel> createState() => _HomeCarouselState();
 }

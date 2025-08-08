@@ -6,6 +6,7 @@ import '../../../widgets/animated_card.dart';
 import '../../../utils/app_colors.dart';
 
 class VetDirectoryScreen extends StatefulWidget {
+  const VetDirectoryScreen({super.key});
   @override
   State<VetDirectoryScreen> createState() => _VetDirectoryScreenState();
 }

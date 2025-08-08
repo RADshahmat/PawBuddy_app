@@ -9,6 +9,7 @@ import '../../../utils/app_colors.dart';
 import '../../../models/user_model.dart';
 
 class LeaderboardScreen extends StatefulWidget {
+  const LeaderboardScreen({super.key});
   @override
   State<LeaderboardScreen> createState() => _LeaderboardScreenState();
 }

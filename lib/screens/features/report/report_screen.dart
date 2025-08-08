@@ -16,6 +16,7 @@ import 'package:http_parser/http_parser.dart';
 import 'dart:convert';
 
 class ReportScreen extends StatefulWidget {
+  const ReportScreen({super.key});
   @override
   State<ReportScreen> createState() => _ReportScreenState();
 }

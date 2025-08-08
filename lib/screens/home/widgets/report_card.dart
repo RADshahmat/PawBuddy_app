@@ -5,6 +5,7 @@ import '../../../utils/app_colors.dart';
 import '../../features/report/report_screen.dart';
 
 class ReportCard extends StatelessWidget {
+  const ReportCard({super.key});
   @override
   Widget build(BuildContext context) {
     return Padding(

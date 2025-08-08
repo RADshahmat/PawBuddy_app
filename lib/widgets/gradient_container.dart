@@ -7,12 +7,12 @@ class GradientContainer extends StatelessWidget {
   final AlignmentGeometry end;
 
   const GradientContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.colors,
     this.begin = Alignment.topLeft,
     this.end = Alignment.bottomRight,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

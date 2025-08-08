@@ -8,6 +8,7 @@ import '../../../utils/app_colors.dart';
 import '../../../models/user_model.dart';
 
 class RewardsScreen extends StatefulWidget {
+
   @override
   State<RewardsScreen> createState() => _RewardsScreenState();
 }

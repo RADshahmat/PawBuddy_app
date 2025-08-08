@@ -12,7 +12,7 @@ class GlassContainer extends StatelessWidget {
   final VoidCallback? onTap;
 
   const GlassContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.width,
     this.height,
@@ -20,12 +20,12 @@ class GlassContainer extends StatelessWidget {
     this.margin,
     this.borderRadius,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       width: width,
       height: height,
@@ -41,7 +41,7 @@ class GlassContainer extends StatelessWidget {
                 end: Alignment.bottomRight,
                 colors: [
                   isDark ? AppColors.glassDark : AppColors.glassLight,
-                  isDark 
+                  isDark
                       ? Colors.white.withOpacity(0.05)
                       : Colors.white.withOpacity(0.1),
                 ],

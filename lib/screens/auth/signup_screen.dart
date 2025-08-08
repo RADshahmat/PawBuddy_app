@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user_model.dart';
+import '../../services/bdapps_service.dart';
 import '../home/home_screen.dart';
 import '../rescue_team/rescue_dashboard.dart';
+import 'otp_verification_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -18,11 +20,13 @@ class _SignupScreenState extends State<SignupScreen>
 
   final _userNameController = TextEditingController();
   final _userEmailController = TextEditingController();
+  final _userPhoneController = TextEditingController();
   final _userPasswordController = TextEditingController();
   final _userConfirmPasswordController = TextEditingController();
 
   final _rescueNameController = TextEditingController();
   final _rescueEmailController = TextEditingController();
+  final _rescuePhoneController = TextEditingController();
   final _rescuePasswordController = TextEditingController();
   final _rescueConfirmPasswordController = TextEditingController();
 
@@ -30,6 +34,12 @@ class _SignupScreenState extends State<SignupScreen>
   bool _userObscureConfirmPassword = true;
   bool _rescueObscurePassword = true;
   bool _rescueObscureConfirmPassword = true;
+
+  // Premium selection
+  bool _isPremiumSelected = false;
+  bool _isProcessingOTP = false;
+
+  final BDAppsService _bdAppsService = BDAppsService();
 
   @override
   void initState() {
@@ -42,10 +52,12 @@ class _SignupScreenState extends State<SignupScreen>
     _tabController.dispose();
     _userNameController.dispose();
     _userEmailController.dispose();
+    _userPhoneController.dispose();
     _userPasswordController.dispose();
     _userConfirmPasswordController.dispose();
     _rescueNameController.dispose();
     _rescueEmailController.dispose();
+    _rescuePhoneController.dispose();
     _rescuePasswordController.dispose();
     _rescueConfirmPasswordController.dispose();
     super.dispose();
@@ -55,6 +67,7 @@ class _SignupScreenState extends State<SignupScreen>
     final formKey = isRescueTeam ? _rescueFormKey : _userFormKey;
     final nameController = isRescueTeam ? _rescueNameController : _userNameController;
     final emailController = isRescueTeam ? _rescueEmailController : _userEmailController;
+    final phoneController = isRescueTeam ? _rescuePhoneController : _userPhoneController;
     final passwordController = isRescueTeam ? _rescuePasswordController : _userPasswordController;
 
     if (!formKey.currentState!.validate()) return;
@@ -62,13 +75,126 @@ class _SignupScreenState extends State<SignupScreen>
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     authProvider.clearError();
 
-    final userType = isRescueTeam ? UserType.rescueTeam : UserType.premium; // Default to premium for users
+    final userType = isRescueTeam ? UserType.rescueTeam :
+    (_isPremiumSelected ? UserType.premium : UserType.normal);
+
+    // If premium is selected, handle BDApps OTP flow
+    if (_isPremiumSelected && !isRescueTeam) {
+      await _handlePremiumSignup(
+        nameController.text.trim(),
+        emailController.text.trim(),
+        phoneController.text.trim(),
+        passwordController.text,
+        userType,
+      );
+    } else {
+      // Regular signup for free users and rescue teams
+      await _performSignup(
+        nameController.text.trim(),
+        emailController.text.trim(),
+        phoneController.text.trim(),
+        passwordController.text,
+        userType,
+        null,
+      );
+    }
+  }
+
+  Future<void> _handlePremiumSignup(
+      String name,
+      String email,
+      String phone,
+      String password,
+      UserType userType,
+      ) async {
+    setState(() {
+      _isProcessingOTP = true;
+    });
+
+    try {
+      // Send OTP via BDApps
+      final otpResult = await _bdAppsService.sendOTPMock(phone); // Use sendOTP for production
+
+      if (otpResult['success']) {
+        setState(() {
+          _isProcessingOTP = false;
+        });
+
+        // Navigate to OTP verification screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OTPVerificationScreen(
+              phoneNumber: phone,
+              transactionId: otpResult['transactionId'],
+              onOTPVerified: (otp) async {
+                await _verifyOTPAndSignup(
+                  name, email, phone, password, userType,
+                  otp, otpResult['transactionId'],
+                );
+              },
+            ),
+          ),
+        );
+      } else {
+        setState(() {
+          _isProcessingOTP = false;
+        });
+        _showErrorMessage(otpResult['message'] ?? 'Failed to send OTP');
+      }
+    } catch (e) {
+      setState(() {
+        _isProcessingOTP = false;
+      });
+      _showErrorMessage('Error sending OTP: $e');
+    }
+  }
+
+  Future<void> _verifyOTPAndSignup(
+      String name,
+      String email,
+      String phone,
+      String password,
+      UserType userType,
+      String otp,
+      String transactionId,
+      ) async {
+    try {
+      // Verify OTP with BDApps
+      final verificationResult = await _bdAppsService.verifyOTPMock(
+        phone, otp, transactionId,
+      ); // Use verifyOTPAndSubscribe for production
+
+      Navigator.pop(context); // Close OTP screen
+
+      if (verificationResult['success']) {
+        // OTP verified, now signup with subscription ID
+        await _performSignup(
+          name, email, phone, password, userType,
+          verificationResult['subscriptionId'],
+        );
+      } else {
+        _showErrorMessage(verificationResult['message'] ?? 'OTP verification failed');
+      }
+    } catch (e) {
+      Navigator.pop(context); // Close OTP screen
+      _showErrorMessage('Error verifying OTP: $e');
+    }
+  }
+
+  Future<void> _performSignup(
+      String name,
+      String email,
+      String phone,
+      String password,
+      UserType userType,
+      String? subscriptionId,
+      ) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     final success = await authProvider.signup(
-      nameController.text.trim(),
-      emailController.text.trim(),
-      passwordController.text,
-      userType,
+      name, email, password, phone, userType,
+      subscriptionId: subscriptionId,
     );
 
     if (success) {
@@ -85,16 +211,20 @@ class _SignupScreenState extends State<SignupScreen>
       }
     } else {
       final errorMessage = authProvider.errorMessage ?? 'Signup failed';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      _showErrorMessage(errorMessage);
     }
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        duration: const Duration(seconds: 4),
+      ),
+    );
   }
 
   @override
@@ -215,6 +345,22 @@ class _SignupScreenState extends State<SignupScreen>
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
+                  controller: _userPhoneController,
+                  label: 'Phone Number',
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter your phone number';
+                    }
+                    if (!RegExp(r'^(\+88)?01[3-9]\d{8}$').hasMatch(value!)) {
+                      return 'Please enter a valid Bangladeshi phone number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
                   controller: _userPasswordController,
                   label: 'Password',
                   icon: Icons.lock_outlined,
@@ -248,11 +394,109 @@ class _SignupScreenState extends State<SignupScreen>
                     return null;
                   },
                 ),
+                const SizedBox(height: 20),
+
+                // Premium Selection
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: const Color(0xFF8B5FBF).withOpacity(0.3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Account Type',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF8B5FBF),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Radio<bool>(
+                            value: false,
+                            groupValue: _isPremiumSelected,
+                            onChanged: (value) {
+                              setState(() {
+                                _isPremiumSelected = value!;
+                              });
+                            },
+                            activeColor: const Color(0xFF8B5FBF),
+                          ),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Free Account',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF8B5FBF),
+                                  ),
+                                ),
+                                Text(
+                                  'Basic features only',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Radio<bool>(
+                            value: true,
+                            groupValue: _isPremiumSelected,
+                            onChanged: (value) {
+                              setState(() {
+                                _isPremiumSelected = value!;
+                              });
+                            },
+                            activeColor: const Color(0xFF8B5FBF),
+                          ),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Premium Account',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF8B5FBF),
+                                  ),
+                                ),
+                                Text(
+                                  'All features + Points system',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
                 const SizedBox(height: 30),
                 _buildSignupButton(
-                  onPressed: authProvider.isLoading ? null : () => _signup(false),
-                  isLoading: authProvider.isLoading,
-                  text: 'Sign Up as User',
+                  onPressed: (authProvider.isLoading || _isProcessingOTP) ? null : () => _signup(false),
+                  isLoading: authProvider.isLoading || _isProcessingOTP,
+                  text: _isPremiumSelected ? 'Sign Up Premium' : 'Sign Up Free',
                 ),
               ],
             ),
@@ -282,6 +526,22 @@ class _SignupScreenState extends State<SignupScreen>
                   label: 'Email',
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _rescuePhoneController,
+                  label: 'Phone Number',
+                  icon: Icons.phone_outlined,
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value?.isEmpty ?? true) {
+                      return 'Please enter your phone number';
+                    }
+                    if (!RegExp(r'^(\+88)?01[3-9]\d{8}$').hasMatch(value!)) {
+                      return 'Please enter a valid Bangladeshi phone number';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(

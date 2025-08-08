@@ -4,6 +4,7 @@ class UserModel {
   final String id;
   final String name;
   final String email;
+  final String? phoneNumber;
   final UserType userType;
   final int points;
 
@@ -11,6 +12,7 @@ class UserModel {
     required this.id,
     required this.name,
     required this.email,
+    this.phoneNumber,
     required this.userType,
     required this.points,
   });
@@ -19,6 +21,7 @@ class UserModel {
     String? id,
     String? name,
     String? email,
+    String? phoneNumber,
     UserType? userType,
     int? points,
   }) {
@@ -26,6 +29,7 @@ class UserModel {
       id: id ?? this.id,
       name: name ?? this.name,
       email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
       userType: userType ?? this.userType,
       points: points ?? this.points,
     );

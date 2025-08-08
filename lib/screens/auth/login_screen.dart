@@ -7,6 +7,7 @@ import '../../models/user_model.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }

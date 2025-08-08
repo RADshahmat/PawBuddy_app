@@ -7,6 +7,7 @@ import 'rescue_team/rescue_dashboard.dart';
 import '../models/user_model.dart';
 
 class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
