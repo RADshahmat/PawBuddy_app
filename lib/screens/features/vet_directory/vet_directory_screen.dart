@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart'; // Import provider
 import '../../../widgets/gradient_background.dart';
 import '../../../widgets/simple_card.dart';
 import '../../../widgets/animated_card.dart';
 import '../../../utils/app_colors.dart';
+import '../../../widgets/premium_feature_card.dart'; // Import PremiumFeatureCard
+import '../../../providers/auth_provider.dart'; // Import AuthProvider
+import 'online_appointment_screen.dart';
+import '../../../models/user_model.dart';// Import the new screen
 
 class VetDirectoryScreen extends StatefulWidget {
-  const VetDirectoryScreen({super.key});
+
   @override
   State<VetDirectoryScreen> createState() => _VetDirectoryScreenState();
 }
 
 class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
+
   String _searchQuery = '';
-  
+
   final List<Map<String, dynamic>> _vets = [
     {
       'name': 'Central Veterinary Hospital',
@@ -67,11 +73,20 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
 
   List<Map<String, dynamic>> get _filteredVets {
     if (_searchQuery.isEmpty) return _vets;
+    final queryLower = _searchQuery.toLowerCase();
     return _vets.where((vet) {
-      return vet['name'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             vet['location'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             vet['services'].any((service) => 
-                 service.toLowerCase().contains(_searchQuery.toLowerCase()));
+      final name = vet['name'] as String?;
+      final location = vet['location'] as String?;
+      final services = vet['services'] as List<dynamic>?; // Cast to dynamic list first
+
+      bool nameMatches = name?.toLowerCase().contains(queryLower) ?? false;
+      bool locationMatches = location?.toLowerCase().contains(queryLower) ?? false;
+      bool servicesMatch = services?.any((service) {
+        final s = service as String?; // Safely cast each service element
+        return s?.toLowerCase().contains(queryLower) ?? false;
+      }) ?? false;
+
+      return nameMatches || locationMatches || servicesMatch;
     }).toList();
   }
 
@@ -89,6 +104,7 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               child: SimpleCard(
+                height: 60,
                 child: TextField(
                   onChanged: (value) => setState(() => _searchQuery = value),
                   decoration: const InputDecoration(
@@ -99,7 +115,7 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
                 ),
               ),
             ),
-            
+
             // Results Count
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -126,7 +142,7 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
                 ],
               ),
             ),
-            
+
             // Vet List
             Expanded(
               child: ListView.builder(
@@ -148,6 +164,9 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
   }
 
   Widget _buildVetCard(Map<String, dynamic> vet) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final isPremium = authProvider.currentUser?.isPremium ?? false;
+
     return AnimatedCard(
       onTap: () => _showVetDetails(vet),
       child: SimpleCard(
@@ -225,9 +244,9 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Rating and Availability
             Row(
               children: [
@@ -274,66 +293,125 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Services
             Wrap(
               spacing: 8,
               runSpacing: 4,
-              children: (vet['services'] as List<String>).take(3).map((service) => 
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    service,
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
+              children: (vet['services'] as List<String>).take(3).map((service) =>
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      service,
+                      style: const TextStyle(
+                        color: AppColors.primary,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
               ).toList(),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Action Buttons
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton.icon(
+                  flex: 3,
+                  child: Stack(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          if (isPremium) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OnlineAppointmentScreen(vet: vet),
+                              ),
+                            );
+                          } else {
+                            PremiumFeatureCard.showPremiumDialog(context);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.warning,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.calendar_today_rounded, size: 18),
+                            SizedBox(width: 8),
+                            Text(
+                              'Appointment',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (!isPremium)
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.lock,
+                              color: Colors.white,
+                              size: 14,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton( // Changed to icon-only
                     onPressed: () => _makeCall(vet['phone']),
-                    icon: const Icon(Icons.phone_rounded, size: 18),
-                    label: const Text('Call'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.success,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      padding: const EdgeInsets.all(2), // Adjust padding for icon-only
                     ),
+                    child: const Icon(Icons.phone_rounded, size: 24), // Icon only
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton.icon(
+                  child: ElevatedButton( // Changed to icon-only
                     onPressed: () => _showVetDetails(vet),
-                    icon: const Icon(Icons.info_rounded, size: 18),
-                    label: const Text('Details'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      padding: const EdgeInsets.all(2), // Adjust padding for icon-only
                     ),
+                    child: const Icon(Icons.info_rounded, size: 24), // Icon only
                   ),
                 ),
+
               ],
             ),
           ],
@@ -389,16 +467,16 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               _buildDetailRow(Icons.location_on_rounded, 'Address', vet['address']),
               _buildDetailRow(Icons.phone_rounded, 'Phone', vet['phone']),
               _buildDetailRow(Icons.access_time_rounded, 'Hours', vet['availability']),
               _buildDetailRow(Icons.star_rounded, 'Rating', '${vet['rating']} / 5.0'),
-              
+
               const SizedBox(height: 16),
-              
+
               const Text(
                 'Services:',
                 style: TextStyle(
@@ -410,27 +488,27 @@ class _VetDirectoryScreenState extends State<VetDirectoryScreen> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: (vet['services'] as List<String>).map((service) => 
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      service,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                children: (vet['services'] as List<String>).map((service) =>
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        service,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
                 ).toList(),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               Row(
                 children: [
                   Expanded(

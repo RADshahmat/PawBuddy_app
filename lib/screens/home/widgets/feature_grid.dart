@@ -24,8 +24,7 @@ class FeatureGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        final isPremium = authProvider.currentUser?.userType == UserType.premium ||
-            authProvider.currentUser?.userType == UserType.rescueTeam;
+        final isPremium = authProvider.currentUser?.isPremium ?? false;
 
         final features = [
           {
@@ -47,7 +46,7 @@ class FeatureGrid extends StatelessWidget {
             'icon': Icons.local_hospital_rounded,
             'color': const Color(0xFF6366F1), // Indigo
             'isPremium': false,
-            'screen': const VetDirectoryScreen(),
+            'screen':   VetDirectoryScreen(),
           },
           {
             'title': 'Animal Food',

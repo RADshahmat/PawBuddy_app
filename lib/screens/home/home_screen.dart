@@ -13,7 +13,7 @@ import 'widgets/feature_grid.dart';
 import 'widgets/points_card.dart';
 import 'widgets/report_card.dart';
 import 'widgets/rescue_teams_card.dart';
-import '../my_reports/my_reports_screen.dart';
+import '../my_posts/my_posts_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen>
                 children: [
                   _buildHomeContent(user),
                   _buildAdoptionContent(),
-                  const MyReportsScreen(),
+                  const MyPostsScreen(),
                   _buildSettingsContent(user),
                 ],
               ),
@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen>
           const SizedBox(height: 20),
 
           // Rescue Teams Card
-          RescueTeamsCard(),
+        RescueTeamsCard(),
 
           const SizedBox(height: 20),
 
@@ -195,7 +195,6 @@ class _HomeScreenState extends State<HomeScreen>
             child: Column(
               children: [
                 Container(
-                  width: 80,
                   height: 80,
                   decoration: const BoxDecoration(
                     color: AppColors.primary,
@@ -608,8 +607,8 @@ class _HomeScreenState extends State<HomeScreen>
               label: 'Adoption',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.report_rounded),
-              label: 'My Reports',
+              icon: Icon(Icons.post_add_rounded),
+              label: 'My Posts',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings_rounded),
