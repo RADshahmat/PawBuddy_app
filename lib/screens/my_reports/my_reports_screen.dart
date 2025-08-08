@@ -8,6 +8,7 @@ import '../../utils/app_colors.dart';
 import '../../models/report_model.dart';
 
 class MyReportsScreen extends StatefulWidget {
+  const MyReportsScreen({super.key});
   @override
   State<MyReportsScreen> createState() => _MyReportsScreenState();
 }

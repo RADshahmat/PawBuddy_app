@@ -6,22 +6,22 @@ class GradientBackground extends StatelessWidget {
   final List<Color>? colors;
 
   const GradientBackground({
-    Key? key,
+    super.key,
     required this.child,
     this.colors,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: colors ?? (isDark 
-              ? AppColors.backgroundGradientDark 
+          colors: colors ?? (isDark
+              ? AppColors.backgroundGradientDark
               : AppColors.backgroundGradientLight),
         ),
       ),

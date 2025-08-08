@@ -7,6 +7,7 @@ import '../../../widgets/animated_card.dart';
 import '../../../utils/app_colors.dart';
 
 class VolunteerScreen extends StatefulWidget {
+  const VolunteerScreen({super.key});
   @override
   State<VolunteerScreen> createState() => _VolunteerScreenState();
 }

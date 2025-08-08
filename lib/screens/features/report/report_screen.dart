@@ -11,6 +11,7 @@ import '../../../models/user_model.dart';
 import 'widgets/location_picker_card.dart';
 
 class ReportScreen extends StatefulWidget {
+  const ReportScreen({super.key});
   @override
   State<ReportScreen> createState() => _ReportScreenState();
 }

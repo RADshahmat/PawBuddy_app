@@ -9,14 +9,14 @@ class SimpleCard extends StatelessWidget {
   final BorderRadius? borderRadius;
 
   const SimpleCard({
-    Key? key,
+    super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.width,
     this.height,
     this.color,
     this.borderRadius,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

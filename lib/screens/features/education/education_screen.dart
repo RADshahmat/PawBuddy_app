@@ -6,6 +6,7 @@ import '../../../widgets/animated_card.dart';
 import '../../../utils/app_colors.dart';
 
 class EducationScreen extends StatefulWidget {
+  const EducationScreen({super.key});
   @override
   State<EducationScreen> createState() => _EducationScreenState();
 }

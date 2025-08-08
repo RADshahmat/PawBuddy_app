@@ -7,6 +7,7 @@ import '../../../models/rescue_team_model.dart';
 import '../../features/rescue_teams/rescue_teams_screen.dart';
 
 class RescueTeamsCard extends StatelessWidget {
+
   final List<RescueTeamModel> _nearbyTeams = [
     RescueTeamModel(
       id: '1',

@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/gradient_background.dart';
 import '../../widgets/simple_card.dart';
+import '../../widgets/premium_feature_card.dart';
 import '../../utils/app_colors.dart';
 import '../../models/user_model.dart';
 import '../auth/login_screen.dart';
@@ -15,6 +16,8 @@ import 'widgets/rescue_teams_card.dart';
 import '../my_reports/my_reports_screen.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -49,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen>
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         final user = authProvider.currentUser!;
-        
+
         return Scaffold(
           extendBody: true,
           appBar: _buildAppBar(),
@@ -61,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen>
                 children: [
                   _buildHomeContent(user),
                   _buildAdoptionContent(),
-                  MyReportsScreen(), // Changed to show user's reports
+                  const MyReportsScreen(),
                   _buildSettingsContent(user),
                 ],
               ),
@@ -109,30 +112,30 @@ class _HomeScreenState extends State<HomeScreen>
       child: Column(
         children: [
           const SizedBox(height: 20),
-          
+
           // Report Card with Map
-          ReportCard(),
-          
+          const ReportCard(),
+
           const SizedBox(height: 20),
-          
+
           // Carousel
-          HomeCarousel(),
-          
+          const HomeCarousel(),
+
           const SizedBox(height: 20),
-          
+
           // Points Card
           PointsCard(user: user),
-          
+
           const SizedBox(height: 20),
-          
+
           // Rescue Teams Card
           RescueTeamsCard(),
-          
+
           const SizedBox(height: 20),
-          
+
           // Feature Grid
           FeatureGrid(user: user),
-          
+
           const SizedBox(height: 100), // Bottom padding for nav bar
         ],
       ),
@@ -186,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20),
-          
+
           // Profile Card
           SimpleCard(
             child: Column(
@@ -228,7 +231,7 @@ class _HomeScreenState extends State<HomeScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.secondary,
+                    color: _getUserTypeColor(user.userType),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -242,9 +245,14 @@ class _HomeScreenState extends State<HomeScreen>
               ],
             ),
           ),
-          
+
           const SizedBox(height: 20),
-          
+
+          // Premium Subscription Card
+          _buildPremiumSubscriptionCard(user),
+
+          const SizedBox(height: 20),
+
           // Settings Options
           _buildSettingsOption(
             icon: Icons.dark_mode,
@@ -259,25 +267,39 @@ class _HomeScreenState extends State<HomeScreen>
               },
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
+          _buildSettingsOption(
+            icon: Icons.notifications,
+            title: 'Notifications',
+            trailing: Switch(
+              value: true,
+              onChanged: (value) {
+                // Handle notification toggle
+              },
+              activeColor: AppColors.primary,
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
           _buildSettingsOption(
             icon: Icons.help,
             title: 'Help & Support',
             onTap: () => _showAboutDialog(context),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildSettingsOption(
             icon: Icons.info,
             title: 'About Us',
             onTap: () => _showAboutDialog(context),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           _buildSettingsOption(
             icon: Icons.logout,
             title: 'Logout',
@@ -285,6 +307,169 @@ class _HomeScreenState extends State<HomeScreen>
             iconColor: AppColors.error,
             onTap: () => _logout(),
           ),
+          const SizedBox(height: 62),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumSubscriptionCard(UserModel user) {
+    final isPremium = user.userType == UserType.premium || user.userType == UserType.rescueTeam;
+
+    return SimpleCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.star,
+                color: AppColors.warning,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                'Subscription',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          if (!isPremium) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => PremiumFeatureCard.showPremiumDialog(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.warning,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Upgrade to Premium',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ] else if (user.userType == UserType.premium) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.green.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Premium Active',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
+                        ),
+                        Text(
+                          'Enjoying all premium features',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => _showUnsubscribeDialog(),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Unsubscribe',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ] else if (user.userType == UserType.rescueTeam) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.orange.withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.shield,
+                    color: Colors.orange,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Rescue Team Account',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        Text(
+                          'All features included',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -309,14 +494,43 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  void _showUnsubscribeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Unsubscribe from Premium'),
+        content: const Text(
+          'Are you sure you want to unsubscribe from Premium? You will lose access to all premium features.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _showMessage('Unsubscribe functionality coming soon!');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Unsubscribe'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showAboutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('About Animal ResQ'),
+        title: const Text('About PawBuddy'),
         content: const Text(
-          'Animal ResQ is a comprehensive platform for animal rescue and welfare. '
-          'Report stray animals, connect with rescue teams, and help make a difference in animals\' lives.',
+          'PawBuddy is a comprehensive platform for animal rescue and welfare. '
+              'Report stray animals, connect with rescue teams, and help make a difference in animals\' lives.',
         ),
         actions: [
           TextButton(
@@ -328,12 +542,36 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  void _showMessage(String message, {bool isError = false}) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: isError ? Colors.red : Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   void _logout() {
     Provider.of<AuthProvider>(context, listen: false).logout();
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => LoginScreen()),
     );
+  }
+
+  Color _getUserTypeColor(UserType userType) {
+    switch (userType) {
+      case UserType.premium:
+        return AppColors.warning;
+      case UserType.rescueTeam:
+        return Colors.orange;
+      case UserType.normal:
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildBottomNavBar() {
