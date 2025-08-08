@@ -17,15 +17,9 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
 
   final List<Map<String, dynamic>> _cart = [];
   String _selectedCategory = 'All';
-
-  final List<String> _categories = [
-    'All',
-    'Dog Food',
-    'Cat Food',
-    'Bird Food',
-    'Accessories',
-  ];
-
+  
+  final List<String> _categories = ['All', 'Medicine','Dog Food', 'Cat Food', 'Bird Food', 'Accessories'];
+  
   final List<Map<String, dynamic>> _products = [
     {
       'id': '1',
@@ -44,8 +38,8 @@ class _FoodStoreScreenState extends State<FoodStoreScreen>
     },
     {
       'id': '2',
-      'name': 'Cat Food Deluxe',
-      'category': 'Cat Food',
+      'name': 'Cat Medicine',
+      'category': 'Medicine',
       'price': 650.0,
       'originalPrice': 750.0,
       'description': 'Complete nutrition for cats with salmon and tuna',

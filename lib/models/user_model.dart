@@ -49,4 +49,5 @@ class UserModel {
   bool get canEarnPoints => userType != UserType.normal;
   bool get canViewLeaderboard => userType == UserType.premium;
   bool get canUploadMultipleImages => userType != UserType.normal;
+  bool get isPremium => userType == UserType.premium;
 }

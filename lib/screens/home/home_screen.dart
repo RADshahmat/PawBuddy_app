@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen>
           const SizedBox(height: 20),
 
           // Rescue Teams Card
-          RescueTeamsCard(),
+        RescueTeamsCard(),
 
           const SizedBox(height: 20),
 
@@ -158,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen>
             child: Column(
               children: [
                 Container(
-                  width: 80,
                   height: 80,
                   decoration: const BoxDecoration(
                     color: AppColors.primary,
@@ -571,8 +570,8 @@ class _HomeScreenState extends State<HomeScreen>
               label: 'Adoption',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.report_rounded),
-              label: 'My Reports',
+              icon: Icon(Icons.post_add_rounded),
+              label: 'My Posts',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings_rounded),
