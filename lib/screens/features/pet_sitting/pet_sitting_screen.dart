@@ -58,6 +58,17 @@ class _PetSittingScreenState extends State<PetSittingScreen> with TickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: true,
+        title: Text('Pet Shelter'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(48), // TabBar  height
+          child: Container(
+            child: _buildTabBar(),
+          ),
+        ),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -72,8 +83,6 @@ class _PetSittingScreenState extends State<PetSittingScreen> with TickerProvider
         child: SafeArea(
           child: Column(
             children: [
-              _buildHeader(),
-              _buildTabBar(),
               Expanded(
                 child: TabBarView(
                   controller: _tabController,
@@ -167,7 +176,7 @@ class _PetSittingScreenState extends State<PetSittingScreen> with TickerProvider
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(25),
       ),
       child: TabBar(
@@ -181,9 +190,22 @@ class _PetSittingScreenState extends State<PetSittingScreen> with TickerProvider
         labelColor: Colors.white,
         unselectedLabelColor: Colors.grey[600],
         labelStyle: TextStyle(fontWeight: FontWeight.w600),
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+        splashFactory: NoSplash.splashFactory,
         tabs: [
-          Tab(text: 'Pet Posts'),
-          Tab(text: 'Pet Sitters'),
+          Tab(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0), // left & right padding
+              child: Text('Pet Posts'),
+            ),
+          ),
+          Tab(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Text('Pet Sitters'),
+            ),
+          ),
+
         ],
       ),
     );

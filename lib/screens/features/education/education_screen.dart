@@ -199,120 +199,117 @@ class _EducationScreenState extends State<EducationScreen>
         backgroundColor: Colors.transparent,
       ),
       body: GradientBackground(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(20),
-                child: AnimatedCard(
-                  child: GlassContainer(
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [AppColors.primary, AppColors.primaryLight],
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(20),
+              child: AnimatedCard(
+                child: GlassContainer(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [AppColors.primary, AppColors.primaryLight],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.school_rounded,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Learn Animal Care',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.school_rounded,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Learn Animal Care',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            Text(
+                              'Essential knowledge for animal welfare',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
                               ),
-                              Text(
-                                'Essential knowledge for animal welfare',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: AppColors.textSecondary,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              
-              // Category Filter
-              Container(
-                height: 50,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final category = _categories[index];
-                    final isSelected = _selectedCategory == category;
-                    
-                    return Container(
-                      margin: const EdgeInsets.only(right: 12),
-                      child: AnimatedCard(
-                        onTap: () => setState(() => _selectedCategory = category),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          decoration: BoxDecoration(
-                            gradient: isSelected
-                                ? LinearGradient(
-                                    colors: [AppColors.primary, AppColors.primaryLight],
-                                  )
-                                : null,
-                            color: isSelected ? null : Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(25),
-                            border: Border.all(
-                              color: isSelected ? Colors.transparent : AppColors.glassBorder,
-                            ),
+            ),
+
+            // Category Filter
+            Container(
+              height: 50,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _categories.length,
+                itemBuilder: (context, index) {
+                  final category = _categories[index];
+                  final isSelected = _selectedCategory == category;
+
+                  return Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    child: AnimatedCard(
+                      onTap: () => setState(() => _selectedCategory = category),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        decoration: BoxDecoration(
+                          gradient: isSelected
+                              ? LinearGradient(
+                                  colors: [AppColors.primary, AppColors.primaryLight],
+                                )
+                              : null,
+                          color: isSelected ? null : Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            color: isSelected ? Colors.transparent : AppColors.glassBorder,
                           ),
-                          child: Text(
-                            category,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        ),
+                        child: Text(
+                          category,
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
-              
-              const SizedBox(height: 20),
-              
-              // Content List
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: _filteredContent.length,
-                  itemBuilder: (context, index) {
-                    final content = _filteredContent[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: _buildContentCard(content),
-                    );
-                  },
-                ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Content List
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                itemCount: _filteredContent.length,
+                itemBuilder: (context, index) {
+                  final content = _filteredContent[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: _buildContentCard(content),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

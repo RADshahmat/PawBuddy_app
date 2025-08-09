@@ -81,127 +81,72 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
             backgroundColor: Colors.transparent,
           ),
           body: GradientBackground(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Column(
-                children: [
-                  // Header
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    child: AnimatedCard(
-                      child: GlassContainer(
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [AppColors.warning, Colors.amber.shade400],
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.leaderboard_rounded,
-                                color: Colors.white,
-                                size: 32,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Top Contributors',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Text(
-                                    'See who\'s making the biggest impact',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                // Period Filter
+                Container(
+                  height: 50,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _periods.length,
+                    itemBuilder: (context, index) {
+                      final period = _periods[index];
+                      final isSelected = _selectedPeriod == period;
+
+                      return Container(
+                        margin: const EdgeInsets.only(right: 12),
+                        child: AnimatedCard(
+                          onTap: () => setState(() => _selectedPeriod = period),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            decoration: BoxDecoration(
+                              gradient: isSelected
+                                  ? LinearGradient(
+                                      colors: [AppColors.primary, AppColors.primaryLight],
+                                    )
+                                  : null,
+                              color: isSelected ? null : Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(
+                                color: isSelected ? Colors.transparent : AppColors.glassBorder,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  // Period Filter
-                  Container(
-                    height: 50,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: _periods.length,
-                      itemBuilder: (context, index) {
-                        final period = _periods[index];
-                        final isSelected = _selectedPeriod == period;
-                        
-                        return Container(
-                          margin: const EdgeInsets.only(right: 12),
-                          child: AnimatedCard(
-                            onTap: () => setState(() => _selectedPeriod = period),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              decoration: BoxDecoration(
-                                gradient: isSelected
-                                    ? LinearGradient(
-                                        colors: [AppColors.primary, AppColors.primaryLight],
-                                      )
-                                    : null,
-                                color: isSelected ? null : Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(25),
-                                border: Border.all(
-                                  color: isSelected ? Colors.transparent : AppColors.glassBorder,
-                                ),
-                              ),
-                              child: Text(
-                                period,
-                                style: TextStyle(
-                                  color: isSelected ? Colors.white : AppColors.textPrimary,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            child: Text(
+                              period,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : AppColors.textPrimary,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    },
                   ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Top 3 Podium
-                  if (leaderboard.length >= 3) _buildPodium(leaderboard.take(3).toList(), currentUser),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Full Leaderboard
-                  Expanded(
-                    child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemCount: leaderboard.length,
-                      itemBuilder: (context, index) {
-                        final user = leaderboard[index];
-                        final isCurrentUser = user.id == currentUser.id;
-                        
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: _buildLeaderboardItem(user, index + 1, isCurrentUser),
-                        );
-                      },
-                    ),
+                ),
+
+                const SizedBox(height: 20),
+
+
+                // Full Leaderboard
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: leaderboard.length,
+                    itemBuilder: (context, index) {
+                      final user = leaderboard[index];
+                      final isCurrentUser = user.id == currentUser.id;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: _buildLeaderboardItem(user, index + 1, isCurrentUser),
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
@@ -209,122 +154,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
     );
   }
 
-  Widget _buildPodium(List<UserModel> topThree, UserModel currentUser) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: AnimatedCard(
-        child: GlassContainer(
-          child: Column(
-            children: [
-              const Text(
-                'Top Contributors',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // 2nd Place
-                  if (topThree.length > 1) _buildPodiumItem(topThree[1], 2, currentUser),
-                  // 1st Place
-                  _buildPodiumItem(topThree[0], 1, currentUser),
-                  // 3rd Place
-                  if (topThree.length > 2) _buildPodiumItem(topThree[2], 3, currentUser),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPodiumItem(UserModel user, int position, UserModel currentUser) {
-    final isCurrentUser = user.id == currentUser.id;
-    final colors = _getPodiumColors(position);
-    final height = _getPodiumHeight(position);
-    
-    return Column(
-      children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: colors),
-            shape: BoxShape.circle,
-            border: isCurrentUser ? Border.all(color: AppColors.accent, width: 3) : null,
-          ),
-          child: Center(
-            child: Text(
-              user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          user.name,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: isCurrentUser ? FontWeight.bold : FontWeight.w500,
-            color: isCurrentUser ? AppColors.accent : AppColors.textPrimary,
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '${user.points} pts',
-          style: TextStyle(
-            fontSize: 10,
-            color: AppColors.textSecondary,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: 50,
-          height: height,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: colors,
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-          ),
-          child: Center(
-            child: Text(
-              '$position',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildLeaderboardItem(UserModel user, int position, bool isCurrentUser) {
     return AnimatedCard(
       child: GlassContainer(
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            gradient: isCurrentUser 
+            gradient: isCurrentUser
                 ? LinearGradient(
                     colors: [
                       AppColors.accent.withOpacity(0.2),
@@ -333,7 +170,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                   )
                 : null,
             borderRadius: BorderRadius.circular(20),
-            border: isCurrentUser 
+            border: isCurrentUser
                 ? Border.all(color: AppColors.accent.withOpacity(0.5), width: 2)
                 : null,
           ),
@@ -341,8 +178,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
             children: [
               // Position
               Container(
-                width: 40,
-                height: 40,
+                width: 30,
+                height: 30,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: _getPositionColors(position),
@@ -360,9 +197,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // User Avatar
               Container(
                 width: 50,
@@ -384,9 +221,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // User Info
               Expanded(
                 child: Column(
@@ -399,7 +236,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: isCurrentUser ? AppColors.accent : AppColors.textPrimary,
+                            color: isCurrentUser ? AppColors.accent : AppColors.textSecondary,
                           ),
                         ),
                         if (isCurrentUser) ...[
@@ -445,7 +282,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                   ],
                 ),
               ),
-              
+
               // Points
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,

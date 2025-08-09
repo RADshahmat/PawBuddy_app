@@ -66,10 +66,9 @@ class _MyPostsScreenState extends State<MyPostsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Posts'),
         backgroundColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        bottom: TabBar(
+        title: TabBar(
           controller: _tabController,
           labelColor: AppColors.primary,
           unselectedLabelColor: AppColors.textSecondary,

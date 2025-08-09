@@ -13,7 +13,7 @@ import 'widgets/feature_grid.dart';
 import 'widgets/points_card.dart';
 import 'widgets/report_card.dart';
 import 'widgets/rescue_teams_card.dart';
-import '../my_reports/my_reports_screen.dart';
+import '../my_posts/my_posts_screen.dart';
 import '../adoption/adoption_center.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen>
                 children: [
                   _buildHomeContent(user),
                   buildAdoptionContent(),
-                  const MyReportsScreen(),
+                  MyPostsScreen(),
                   _buildSettingsContent(user),
                 ],
               ),
