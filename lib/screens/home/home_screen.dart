@@ -14,6 +14,7 @@ import 'widgets/points_card.dart';
 import 'widgets/report_card.dart';
 import 'widgets/rescue_teams_card.dart';
 import '../my_reports/my_reports_screen.dart';
+import '../my_posts/my_posts_screen.dart';
 import '../adoption/adoption_center.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -65,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen>
                 children: [
                   _buildHomeContent(user),
                   buildAdoptionContent(),
-                  const MyReportsScreen(),
+                  const MyPostsScreen(),
                   _buildSettingsContent(user),
                 ],
               ),
@@ -130,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen>
           const SizedBox(height: 20),
 
           // Rescue Teams Card
-        RescueTeamsCard(),
+          RescueTeamsCard(),
 
           const SizedBox(height: 20),
 
@@ -142,8 +143,6 @@ class _HomeScreenState extends State<HomeScreen>
       ),
     );
   }
-
- 
 
   Widget _buildSettingsContent(UserModel user) {
     return SingleChildScrollView(
@@ -191,7 +190,10 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: _getUserTypeColor(user.userType),
                     borderRadius: BorderRadius.circular(20),
@@ -276,7 +278,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Widget _buildPremiumSubscriptionCard(UserModel user) {
-    final isPremium = user.userType == UserType.premium || user.userType == UserType.rescueTeam;
+    final isPremium =
+        user.userType == UserType.premium ||
+        user.userType == UserType.rescueTeam;
 
     return SimpleCard(
       child: Column(
@@ -284,18 +288,11 @@ class _HomeScreenState extends State<HomeScreen>
         children: [
           Row(
             children: [
-              Icon(
-                Icons.star,
-                color: AppColors.warning,
-                size: 24,
-              ),
+              Icon(Icons.star, color: AppColors.warning, size: 24),
               const SizedBox(width: 12),
               const Text(
                 'Subscription',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -316,10 +313,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 child: const Text(
                   'Upgrade to Premium',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -329,17 +323,11 @@ class _HomeScreenState extends State<HomeScreen>
               decoration: BoxDecoration(
                 color: Colors.green.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.green.withOpacity(0.3),
-                ),
+                border: Border.all(color: Colors.green.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 24,
-                  ),
+                  Icon(Icons.check_circle, color: Colors.green, size: 24),
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Column(
@@ -355,10 +343,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         Text(
                           'Enjoying all premium features',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -381,10 +366,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 child: const Text(
                   'Unsubscribe',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -394,17 +376,11 @@ class _HomeScreenState extends State<HomeScreen>
               decoration: BoxDecoration(
                 color: Colors.orange.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.orange.withOpacity(0.3),
-                ),
+                border: Border.all(color: Colors.orange.withOpacity(0.3)),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.shield,
-                    color: Colors.orange,
-                    size: 24,
-                  ),
+                  Icon(Icons.shield, color: Colors.orange, size: 24),
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Column(
@@ -420,10 +396,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         Text(
                           'All features included',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
+                          style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -492,7 +465,7 @@ class _HomeScreenState extends State<HomeScreen>
         title: const Text('About PawBuddy'),
         content: const Text(
           'PawBuddy is a comprehensive platform for animal rescue and welfare. '
-              'Report stray animals, connect with rescue teams, and help make a difference in animals\' lives.',
+          'Report stray animals, connect with rescue teams, and help make a difference in animals\' lives.',
         ),
         actions: [
           TextButton(

@@ -59,7 +59,7 @@ class _PremiumUpgradeDialogState extends State<PremiumUpgradeDialog> {
       final phoneNumber = _phoneController.text.trim();
       print('Starting upgrade process for: $phoneNumber');
 
-      final otpResult = await _bdAppsService.sendOTPMock(phoneNumber);
+      final otpResult = await _bdAppsService.sendOTP(phoneNumber);
       print('OTP send result: $otpResult');
 
       if (mounted) {
@@ -68,7 +68,7 @@ class _PremiumUpgradeDialogState extends State<PremiumUpgradeDialog> {
         });
       }
 
-      if (otpResult['success'] == true) {
+      if (otpResult['statusCode'] == 'S1000') {
         if (mounted) {
           Navigator.pop(context); // Close current dialog
 
@@ -78,13 +78,13 @@ class _PremiumUpgradeDialogState extends State<PremiumUpgradeDialog> {
             MaterialPageRoute(
               builder: (context) => OTPVerificationScreen(
                 phoneNumber: phoneNumber,
-                transactionId: otpResult['transactionId'] ?? 'mock_transaction_123',
+                transactionId: otpResult['referenceNo'] ?? 'mock_transaction_123',
                 onOTPVerified: (otp) async {
                   print('OTP entered: $otp');
                   await _verifyOTPAndUpgrade(
                     phoneNumber,
                     otp,
-                    otpResult['transactionId'] ?? 'mock_transaction_123',
+                    otpResult['referenceNo'] ?? 'mock_transaction_123',
                   );
                 },
               ),
@@ -113,7 +113,7 @@ class _PremiumUpgradeDialogState extends State<PremiumUpgradeDialog> {
     try {
       print('Verifying OTP: $otp for transaction: $transactionId');
 
-      final verificationResult = await _bdAppsService.verifyOTPMock(
+      final verificationResult = await _bdAppsService.verifyOTP(
         phoneNumber,
         otp,
         transactionId,
